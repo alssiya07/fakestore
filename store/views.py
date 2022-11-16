@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet,ViewSet
 from rest_framework.response import Response
 from rest_framework import permissions,authentication
 from rest_framework.decorators import action
 
-from store.serializer import ProductsSerializer,CartSerializer
+from store.serializer import ProductsSerializer,CartSerializer,ReviewSerilaizer
 from store.models import Products,Carts
 # Create your views here.
 
@@ -28,18 +28,33 @@ class ProductsView(ModelViewSet):
         return Response(data=serializer.data)
 
 # localhost:8000/products/1/addto_cart/
-
-    @action(methods=["POST"],detail=True)
-    def addto_cart(self,requst,*args,**kwargs):
-
+    @action(methods=["post"],detail=True)
+    def addto_cart(self,request,*args,**kw):
         product=self.get_object()
-        user=requst.user
-        serializer=CartSerializer(
-            data=requst.data,
-            context={"user":user,"product":product}
-        )
+        user=request.user
+        serializer=CartSerializer(data=request.data,context={"product":product,"user":user})
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data)
         else:
             return Response(data=serializer.errors)
+
+# localhost:8000/products/1/add_reviews/
+    @action(methods=["post"],detail=True)
+    def add_reviews(self,request,*args,**kwargs):
+        product=self.get_object()
+        user=request.user
+        serializer=ReviewSerilaizer(data=request.data,context={"user":user,"product":product})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+class CartView(ViewSet):
+    authentication_class=[authentication.TokenAuthentication]
+    permission_class=[permissions.IsAuthenticated]
+    def list(self,request,*args,**kwargs):
+        qs=Carts.objects.filter(user=request.user)
+        serializer=CartSerializer(qs,many=True)
+        return Response(data=serializer.data)

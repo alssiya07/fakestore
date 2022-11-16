@@ -10,7 +10,11 @@ class Products(models.Model):
     brand=models.CharField(max_length=200) 
     image=models.ImageField(upload_to="images",null=True)   
     price=models.PositiveIntegerField()
-    category=models.CharField(max_length=200) 
+    category=models.CharField(max_length=200)
+
+    @property
+    def product_reviews(self):
+        return self.reviews_set.all()
 
     def __str__(self):
         return self.name
@@ -20,11 +24,6 @@ class Reviews(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     comment=models.CharField(max_length=500)
     rating=models.PositiveIntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])
-
-    # @property
-    # def question_answers(self):
-    #     qs=self.answers_set.all().annotate(u_count=Count('rating')).order_by('-u_count')   
-    #     return qs
 
     # @property
     # def ratingcount(self):
