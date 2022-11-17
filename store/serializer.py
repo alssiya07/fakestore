@@ -30,7 +30,9 @@ class ReviewSerilaizer(serializers.ModelSerializer):
 class ProductsSerializer(serializers.ModelSerializer):
     id=serializers.CharField(read_only=True)
     product_reviews=ReviewSerilaizer(read_only=True,many=tuple)
+    avg_rating=serializers.IntegerField(read_only=True)
 
     class Meta():
         model=Products
-        fields=["id","name","description","category","price","image","product_reviews"]
+        fields=["id","name","description","category",
+        "price","image","product_reviews","avg_rating"]

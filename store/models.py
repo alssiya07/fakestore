@@ -13,6 +13,14 @@ class Products(models.Model):
     category=models.CharField(max_length=200)
 
     @property
+    def avg_rating(self):
+        ratings=self.reviews_set.all().values_list("rating",flat=True)
+        if ratings:
+            return sum(ratings/len(ratings))
+        else:
+            return 0
+
+    @property
     def product_reviews(self):
         return self.reviews_set.all()
 
@@ -24,10 +32,6 @@ class Reviews(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     comment=models.CharField(max_length=500)
     rating=models.PositiveIntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])
-
-    # @property
-    # def ratingcount(self):
-    #     return self.rating.all().count()
 
     # def __str__(self):
     #     return self.product

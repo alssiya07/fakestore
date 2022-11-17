@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet,ViewSet
 from rest_framework.response import Response
 from rest_framework import permissions,authentication
 from rest_framework.decorators import action
+from rest_framework import serializers
 
 from store.serializer import ProductsSerializer,CartSerializer,ReviewSerilaizer
 from store.models import Products,Carts
@@ -54,7 +55,19 @@ class ProductsView(ModelViewSet):
 class CartView(ViewSet):
     authentication_class=[authentication.TokenAuthentication]
     permission_class=[permissions.IsAuthenticated]
+    queryset=Carts.objects.all()
+    
     def list(self,request,*args,**kwargs):
         qs=Carts.objects.filter(user=request.user)
         serializer=CartSerializer(qs,many=True)
         return Response(data=serializer.data)
+
+    def destroy(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        obj=Carts.objects.get(id=id)
+
+        if obj.user==request.user:
+            obj.delete()
+            return Response(data="deleted")
+        else:
+            raise serializers.ValidationError("cannot delete")
