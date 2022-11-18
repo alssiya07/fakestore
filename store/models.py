@@ -16,7 +16,7 @@ class Products(models.Model):
     def avg_rating(self):
         ratings=self.reviews_set.all().values_list("rating",flat=True)
         if ratings:
-            return sum(ratings/len(ratings))
+            return sum(ratings)/len(ratings)
         else:
             return 0
 

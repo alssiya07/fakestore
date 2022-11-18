@@ -35,4 +35,7 @@ class ProductsSerializer(serializers.ModelSerializer):
     class Meta():
         model=Products
         fields=["id","name","description","category",
-        "price","image","product_reviews","avg_rating"]
+        "price","image","avg_rating","product_reviews"]
+
+
+

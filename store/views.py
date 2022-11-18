@@ -3,14 +3,15 @@ from rest_framework.viewsets import ModelViewSet,ViewSet
 from rest_framework.response import Response
 from rest_framework import permissions,authentication
 from rest_framework.decorators import action
-from rest_framework import serializers
+from rest_framework import serializers,mixins,generics
 
 from store.serializer import ProductsSerializer,CartSerializer,ReviewSerilaizer
-from store.models import Products,Carts
+from store.models import Products,Carts,Reviews
 # Create your views here.
 
 class ProductsView(ModelViewSet):
-    authentication_classes=[authentication.TokenAuthentication]
+    # authentication_classes=[authentication.TokenAuthentication]
+
     permission_classes=[permissions.IsAuthenticated]
     serializer_class=ProductsSerializer
     queryset=Products.objects.all()
@@ -53,7 +54,8 @@ class ProductsView(ModelViewSet):
             return Response(serializer.errors)
 
 class CartView(ViewSet):
-    authentication_class=[authentication.TokenAuthentication]
+    # authentication_class=[authentication.TokenAuthentication]
+
     permission_class=[permissions.IsAuthenticated]
     queryset=Carts.objects.all()
     
@@ -64,10 +66,25 @@ class CartView(ViewSet):
 
     def destroy(self,request,*args,**kwargs):
         id=kwargs.get("pk")
-        obj=Carts.objects.get(id=id)
+        object=Carts.objects.get(id=id)
 
-        if obj.user==request.user:
-            obj.delete()
+        if object.user==request.user:
+            object.delete()
             return Response(data="deleted")
         else:
             raise serializers.ValidationError("cannot delete")
+
+class ReviewDeleteView(mixins.DestroyModelMixin,generics.GenericAPIView):
+
+    serializer_class=ReviewSerilaizer
+    queryset=Reviews.objects.all()
+
+    def delete(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        review=Reviews.objects.get(id=id)
+        if review.user==request.user:
+            return self.destroy(request,*args,**kwargs)
+        else:
+            raise serializers.ValidationError("cannot delete")
+
+
