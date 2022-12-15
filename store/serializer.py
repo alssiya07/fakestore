@@ -6,7 +6,7 @@ class CartSerializer(serializers.ModelSerializer):
     product=serializers.CharField(read_only=True)
     user=serializers.CharField(read_only=True)
     date=serializers.CharField(read_only=True)
-    class Meta:
+    class Meta():
         model=Carts
         fields=["id","product","user","date"]
     def create(self, validated_data):
